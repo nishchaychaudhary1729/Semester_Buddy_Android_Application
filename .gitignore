@@ -1,0 +1,43 @@
+# === Node modules ===
+node_modules/
+
+# === Next.js build output ===
+.next/
+out/
+
+# === Environment variables ===
+.env*
+!.env.example
+
+# === Logs ===
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# === OS and Editor folders ===
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# === Testing and coverage ===
+coverage/
+jest-output.json
+
+# === Production build (if used) ===
+dist/
+build/
+
+# === Custom uploads or temp files ===
+uploads/
+tmp/
+temp/
+
+# === Typescript cache ===
+*.tsbuildinfo
+
+# === Other ===
+*.local
+
