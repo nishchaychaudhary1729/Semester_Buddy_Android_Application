@@ -16,8 +16,8 @@ export interface NoteDocument {
   title: string;
   content?: string;
   type: string;
-  // GridFS file ID instead of external URL
-  fileId?: ObjectId;
+  // Local storage path relative to project root (e.g., /uploads/<filename>)
+  filePath?: string;
   fileName?: string;
   fileSize?: number;
   createdAt: Date;
@@ -29,6 +29,10 @@ export interface NotebookDocument {
   userId: ObjectId;
   title: string;
   description?: string;
+  // Optional uploaded file metadata (local storage)
+  filePath?: string;
+  fileName?: string;
+  fileSize?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -41,6 +45,10 @@ export interface AssignmentDocument {
   dueDate?: Date;
   status: 'pending' | 'in_progress' | 'completed';
   priority?: 'low' | 'medium' | 'high';
+  // Optional uploaded file metadata (local storage)
+  filePath?: string;
+  fileName?: string;
+  fileSize?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -52,9 +60,9 @@ export interface LectureDocument {
   description?: string;
   date?: Date;
   notes?: string;
-  // GridFS file IDs for attachments
+  // Local storage attachments
   attachments?: Array<{
-    fileId: ObjectId;
+    filePath: string;
     fileName: string;
     fileSize: number;
   }>;

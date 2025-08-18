@@ -4,16 +4,26 @@ const API_URL = '/api'
 
 export const contentService = {
   // File upload operations
-  async uploadFile(file: File, description?: string, tags?: string): Promise<{
-    success: boolean;
-    fileId: string;
-    filename: string;
-    size: number;
-    contentType: string;
-    message: string;
+  async uploadFile(
+    file: File,
+    description?: string,
+    tags?: string
+  ): Promise<{
+    file: {
+      fieldname: string;
+      originalname: string;
+      encoding: string;
+      mimetype: string;
+      destination: string;
+      filename: string;
+      path: string; // local absolute path
+      publicPath?: string; // public path under /public for serving
+      size: number;
+    };
   }> {
     const formData = new FormData();
-    formData.append('file', file);
+    // next-connect + multer route expects field name 'image'
+    formData.append('image', file);
     if (description) formData.append('description', description);
     if (tags) formData.append('tags', tags);
 
@@ -21,7 +31,7 @@ export const contentService = {
       method: 'POST',
       body: formData
     });
-    
+
     if (!response.ok) throw new Error('Failed to upload file');
     return response.json();
   },
@@ -92,5 +102,21 @@ export const contentService = {
       method: 'DELETE'
     })
     if (!response.ok) throw new Error('Failed to delete notebook')
+  }
+  ,
+  // Lectures operations
+  async getLectures(): Promise<any[]> {
+    const response = await fetch(`${API_URL}/lecturenotes`)
+    if (!response.ok) throw new Error('Failed to fetch lectures')
+    return response.json()
+  },
+  async createLecture(lecture: any): Promise<any> {
+    const response = await fetch(`${API_URL}/lecturenotes`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(lecture)
+    })
+    if (!response.ok) throw new Error('Failed to create lecture')
+    return response.json()
   }
 } 

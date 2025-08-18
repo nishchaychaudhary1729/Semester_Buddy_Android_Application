@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../auth/[...nextauth]/route';
 import { getNotebookById, updateNotebook, deleteNotebook, getOrCreateUserByEmail } from '@/app/lib/dbService';
+import fs from 'fs';
+import path from 'path';
 
 export async function PUT(
   request: NextRequest,
@@ -35,7 +37,10 @@ export async function PUT(
     // Update the notebook
     const updateData = {
       title: body.title,
-      description: body.description
+      description: body.description,
+      filePath: body.filePath,
+      fileName: body.fileName,
+      fileSize: body.fileSize
     };
     
     const success = await updateNotebook(notebookId, updateData);
@@ -56,6 +61,9 @@ export async function PUT(
       userId: updatedNotebook?.userId.toString(),
       title: updatedNotebook?.title,
       description: updatedNotebook?.description,
+      filePath: updatedNotebook?.filePath,
+      fileName: updatedNotebook?.fileName,
+      fileSize: updatedNotebook?.fileSize,
       createdAt: updatedNotebook?.createdAt.toISOString(),
       updatedAt: updatedNotebook?.updatedAt.toISOString()
     };
@@ -98,6 +106,31 @@ export async function DELETE(
       );
     }
     
+    // Delete associated file from disk, if present
+    try {
+      const storedPath = (existingNotebook as any).filePath as string | undefined;
+      if (storedPath) {
+        let absolutePath = storedPath;
+        if (!path.isAbsolute(absolutePath)) {
+          const trimmed = absolutePath.replace(/^[/\\]+/, '');
+          const candidatePublic = path.join(process.cwd(), 'public', trimmed);
+          const candidateRoot = path.join(process.cwd(), trimmed);
+          if (fs.existsSync(candidatePublic)) {
+            absolutePath = candidatePublic;
+          } else if (fs.existsSync(candidateRoot)) {
+            absolutePath = candidateRoot;
+          } else {
+            absolutePath = path.join(process.cwd(), 'public', 'uploads', trimmed);
+          }
+        }
+        if (fs.existsSync(absolutePath)) {
+          await fs.promises.unlink(absolutePath);
+        }
+      }
+    } catch (fileErr) {
+      console.error('Failed to delete file for notebook:', fileErr);
+    }
+
     const success = await deleteNotebook(notebookId);
     
     if (!success) {

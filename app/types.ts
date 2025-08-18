@@ -11,7 +11,7 @@ export interface Note {
   title: string
   content?: string
   type: string
-  fileId?: string
+  filePath?: string
   fileName?: string
   fileSize?: number
   createdAt: string
@@ -22,6 +22,9 @@ export interface Notebook {
   userId: string
   title: string
   description?: string
+  filePath?: string
+  fileName?: string
+  fileSize?: number
   createdAt: string
 }
 
@@ -32,5 +35,8 @@ export interface Assignment {
   description?: string
   dueDate?: string
   status: 'pending' | 'in_progress' | 'completed'
+  filePath?: string
+  fileName?: string
+  fileSize?: number
   createdAt: string
 } 

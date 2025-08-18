@@ -38,29 +38,31 @@ export default function ContentManager({
 
     setIsUploading(true)
     try {
-      // First upload the file to GridFS
-      const uploadResult = await contentService.uploadFile(file);
-      
-      if (uploadResult.success) {
-        // Create a new item with the uploaded file information
-        const newItem = {
-          title: file.name,
-          type: type,
-          fileId: uploadResult.fileId,
-          fileName: file.name,
-          fileSize: file.size,
-          userId: "1" // This will be handled by the server
-        } as Omit<ContentItem, 'id' | 'createdAt'>
+      // Upload the file via next-connect + multer endpoint
+      const uploadResult = await contentService.uploadFile(file)
 
-        // Call the onCreate callback to save the item to the database
-        if (onCreate) {
-          await onCreate(newItem)
-        }
+      const uploaded = uploadResult.file
+      if (!uploaded) throw new Error('No file returned from upload')
 
-        // Refresh the items list to show the new upload
-        if (onRefresh) {
-          await onRefresh()
-        }
+      // Create a new item with the uploaded file information
+      const newItem = {
+        title: uploaded.originalname || file.name,
+        type: type,
+        // Store public path so it can be referenced in UI if needed
+        filePath: uploaded.publicPath || uploaded.path,
+        fileName: uploaded.filename || file.name,
+        fileSize: uploaded.size,
+        userId: ""
+      } as Omit<ContentItem, 'id' | 'createdAt'>
+
+      // Call the onCreate callback to save the item to the database
+      if (onCreate) {
+        await onCreate(newItem)
+      }
+
+      // Refresh the items list to show the new upload
+      if (onRefresh) {
+        await onRefresh()
       }
     } catch (error) {
       console.error('Upload failed:', error)

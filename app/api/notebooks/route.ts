@@ -25,6 +25,9 @@ export async function GET(request: NextRequest) {
       userId: notebook.userId.toString(),
       title: notebook.title,
       description: notebook.description,
+      filePath: notebook.filePath,
+      fileName: notebook.fileName,
+      fileSize: notebook.fileSize,
       createdAt: notebook.createdAt.toISOString(),
       updatedAt: notebook.updatedAt.toISOString()
     }));
@@ -58,7 +61,10 @@ export async function POST(request: NextRequest) {
     const notebookData = {
       userId: userObjectId,
       title: body.title,
-      description: body.description
+      description: body.description,
+      filePath: body.filePath,
+      fileName: body.fileName,
+      fileSize: body.fileSize
     };
     
     const newNotebook = await createNotebook(notebookData);
@@ -69,6 +75,9 @@ export async function POST(request: NextRequest) {
       userId: newNotebook.userId.toString(),
       title: newNotebook.title,
       description: newNotebook.description,
+      filePath: newNotebook.filePath,
+      fileName: newNotebook.fileName,
+      fileSize: newNotebook.fileSize,
       createdAt: newNotebook.createdAt.toISOString(),
       updatedAt: newNotebook.updatedAt.toISOString()
     };

@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]/route';
 import { createNote, getNotesByUserId, getOrCreateUserByEmail } from '@/app/lib/dbService';
-import { ObjectId } from 'mongodb';
 
 export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -26,7 +25,7 @@ export async function GET(request: NextRequest) {
       title: note.title,
       content: note.content,
       type: note.type,
-      fileId: note.fileId?.toString(),
+      filePath: note.filePath,
       fileName: note.fileName,
       fileSize: note.fileSize,
       createdAt: note.createdAt.toISOString(),
@@ -64,7 +63,8 @@ export async function POST(request: NextRequest) {
       title: body.title,
       content: body.content,
       type: body.type || 'text',
-      fileId: body.fileId ? new ObjectId(body.fileId) : undefined,
+      // Normalize to public path if provided as absolute
+      filePath: typeof body.filePath === 'string' ? body.filePath : undefined,
       fileName: body.fileName,
       fileSize: body.fileSize
     };
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
       title: newNote.title,
       content: newNote.content,
       type: newNote.type,
-      fileId: newNote.fileId?.toString(),
+      filePath: newNote.filePath,
       fileName: newNote.fileName,
       fileSize: newNote.fileSize,
       createdAt: newNote.createdAt.toISOString(),
